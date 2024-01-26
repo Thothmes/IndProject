@@ -416,7 +416,7 @@ def change_str_database(f_check):
                         elif choise_n == 1:
 
                             change_str = str(input('Напишите все данные разделяя пробелами, согласно примеру и инструкции: '))
-                            change_str_array = change_str_n.split()
+                            change_str_array = change_str.split()
 
                             if len(change_str_array) != 8:
                                 print('Вы ввели некорректную запись, попробуйте ещё раз')
