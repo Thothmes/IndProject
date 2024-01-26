@@ -37,7 +37,7 @@ def main_menu(f_check):
         choise_n = int(input('Введите цифру: '))
     except ValueError:
         print('Вы ошиблись при вводе, попробуйте ещё раз')
-        main_menu()
+        main_menu(f_check)
     else:
         if choise_n == 1:
             reports(f_check)
@@ -63,7 +63,7 @@ def reports(f_check):
         choise_n = int(input('Введите число: '))
     except ValueError:
         print('Вы ошиблись при вводе, попробуйте ещё раз')
-        reports()
+        reports(f_check)
     else:
         if choise_n == 1:
             report_1(f_check)
@@ -90,7 +90,7 @@ def database(f_check):
         choise_n = int(input('Введите число: '))
     except ValueError:
         print('Вы ошиблись при вводе, попробуйте ещё раз')
-        database()
+        database(f_check)
     else:
         if choise_n == 1:
             add_str_database(f_check)
@@ -159,17 +159,21 @@ def report_2(f_check):
                 surname_array.append(str(line_data[0]))
 
     n = len(year_rel_array)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            if year_rel_array[j] < year_rel_array[j+1]:
-                year_rel_array[j], year_rel_array[j+1] = year_rel_array[j+1], year_rel_array[j]
-                volume_array[j], volume_array[j+1] = volume_array[j+1], volume_array[j]
-                surname_array[j], surname_array[j+1] = surname_array[j+1], surname_array[j]
+    if n == 0:
+        print('Машин такой марки нет в базе данных')
+    else:
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if year_rel_array[j] < year_rel_array[j+1]:
+                    year_rel_array[j], year_rel_array[j+1] = year_rel_array[j+1], year_rel_array[j]
+                    volume_array[j], volume_array[j+1] = volume_array[j+1], volume_array[j]
+                    surname_array[j], surname_array[j+1] = surname_array[j+1], surname_array[j]
 
-    for i in range(n):
-        print(f"Год выпуска: {year_rel_array[i]}, Объём двигателя: {volume_array[i]}, Фамилия: {surname_array[i]}")
+        for i in range(n):
+            print(f"Год выпуска: {year_rel_array[i]}, Объём двигателя: {volume_array[i]}, Фамилия: {surname_array[i]}")
 
     file.close()
+    reports(f_check)
 
 def report_3(f_check):
     year_rel_dict = {}; year_brand_array = []; year_array = []; brand_array = []; surname_array = []; b_n =  brand_str = str()
@@ -207,7 +211,7 @@ def report_3(f_check):
                 for i in range(0,len(year_array)):
                     print(str(str(year_array[i]) + ' : ' + year_rel_dict[year_array[i]]))
             file.close()
-            database(f_check)    
+            reports(f_check)    
 
 def database_view(f_check):
 
