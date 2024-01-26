@@ -425,8 +425,10 @@ def change_str_database(f_check):
 
                             else:
                                 check(change_str, 3)
-                                files[change_str_n-1] = change_str
+                                if
+                                files[change_str_n-1] = change_str + '\n'
                                 print('Изменение произведено успешно')
+                                change_str_database(f_check)
                             
                         else:
                             print('Вы ввели некорректные данные, попробуйте ещё раз')
