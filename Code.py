@@ -425,7 +425,7 @@ def change_str_database(f_check):
 
                             else:
                                 check(change_str, 3)
-                                files[change_str_n] = change_str
+                                files[change_str_n-1] = change_str
                                 print('Изменение произведено успешно')
                             
                         else:
