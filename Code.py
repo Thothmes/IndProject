@@ -125,42 +125,55 @@ def database(f_check):
             database()
 
 def report_1(f_check):
-
     """
     Функция report_1 формирует отчет о списках автомобилистов на основе определенных ключей и сортировки.
     Результаты выводятся на экран.
     """
 
-    year_reg_dict = {}; year_reg_array = []; surname_array = []; surname_str = str(); last_array = []
+    year_reg_dict = {}
+    year_reg_array = []
+    surname_array = []
+    surname_str = str()
+    last_array = []
 
-    with open('data.txt', 'r+', encoding="utf-8") as file:
+    with open('data.txt', 'r', encoding="utf-8") as file:
         lines = file.readlines()
-        for i in range(0, len(lines)):
-            line = lines[i].split()
-            year_reg_array.append(int(line[7]))
+        for line in lines:
+            line_data = line.split()
+            year_reg_array.append(int(line_data[7]))
+
         year_reg_set = set(year_reg_array)
         year_reg_array = list(year_reg_set)
-        for i in range(0,len(year_reg_array)):
-            for i1 in range(0, len(lines)):
-                line = lines[i1].split()
-                if str(year_reg_array[i]) == line[7]:
-                    surname_array.append(line[0])
-            surname_array = sorted(surname_array)
-            surname_array.reverse()
-            for i1 in range(0,len(surname_array)):
-                surname_str += surname_array[i1] + ' '
-            year_reg_dict[int(year_reg_array[i])] = surname_str
-            surname_str = str(); surname_array = []
-        for i in range(0, len(year_reg_array)):
-            last_str = str(str(int(year_reg_array[i])) + ' : ' + year_reg_dict[int(year_reg_array[i])])
+
+        for year in year_reg_array:
+            for line in lines:
+                line_data = line.split()
+                if str(year) == line_data[7]:
+                    surname_array.append(line_data[0])
+
+            surname_array = sorted(surname_array, reverse=True)
+            surname_str = ' '.join(surname_array)
+            year_reg_dict[int(year)] = surname_str
+            surname_array = []
+
+        # Сортировка пузырьком
+        n = len(year_reg_array)
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if year_reg_array[j] < year_reg_array[j+1]:
+                    # меняем элементы
+                    year_reg_array[j], year_reg_array[j+1] = year_reg_array[j+1], year_reg_array[j]
+
+        for year in year_reg_array:
+            last_str = str(year) + ' : ' + year_reg_dict[int(year)]
             last_array.append(last_str)
-        last_array.sort()
-        last_array.reverse()
-        for i in range(0,len(last_array)):
-            print(last_array[i])
+
+        for item in last_array:
+            print(item)
+
     file.close()
     reports(f_check)
-
+    
 def report_2(f_check):
 
     """
@@ -204,49 +217,47 @@ def report_2(f_check):
     reports(f_check)
 
 def report_3(f_check):
-
     """
     Функция report_3 формирует отчет о владельцах автомобилей с заданным годом выпуска на основе ключей для сортировки.
     После сортировки результаты выводятся на экран.
     """    
-
-    year_rel_dict = {}; year_brand_array = []; year_array = []; brand_array = []; surname_array = []; b_n =  brand_str = str()
-
+    year_rel_dict = {}
+    year_brand_array = []
+    surname_array = []
+    
     try:
-        year_rel = str(input('Введите год, раньше которого вы хотите узнать: '))
+        year_rel = int(input('Введите год, раньше которого вы хотите узнать: '))
+        if year_rel < 1884:
+            print('Слишком давно, попробуйте снова')
+        else:
+            break
     except ValueError:
         print('Вы ввели некорректные данные, попробуйте ещё раз')
-        report_3(f_check)
-    else:
-        if int(year_rel) < 1884:
-            print('Слишком давно, попробуйте снова')
-            report_3(f_check)
-        else:
-            with open('data.txt', 'r+', encoding="utf-8") as file:
-                lines = file.readlines()
-                for i in range(0, len(lines)):
-                    line = lines[i].split()
-                    if int(year_rel) > int(line[6]):
-                            year_array.append(int(line[6]))
-                            surname_array = [str(line[4]), str(line[0])]
-                            year_brand_array.append([int(line[6]), surname_array])
-                year_array = set(year_array)
-                year_array = list(year_array)
-                year_array.reverse()
-                for i in range(0, len(year_array)):
-                    for i1 in range(0, len(year_brand_array)):
-                        if year_brand_array[i1][0] == year_array[i]:
-                            brand_array.append(year_brand_array[i1][1])
-                    brand_array = sorted(brand_array)
-                    for i1 in range(0, len(brand_array)):
-                        brand_str += str(brand_array[i1]) + ' '
-                    year_rel_dict[int(year_array[i])] = brand_str
-                    brand_str = str(); brand_array = []
-                for i in range(0,len(year_array)):
-                    print(str(str(year_array[i]) + ' : ' + year_rel_dict[year_array[i]]))
-            file.close()
-            reports(f_check)    
 
+    with open('data.txt', 'r', encoding="utf-8") as file:
+        for line in file:
+            data = line.split()
+            if int(data[6]) < year_rel:
+                year_brand_array.append((int(data[6]), data[4], data[0]))
+
+    year_brand_array.sort(key=lambda x: (-x[0], x[1]))
+
+    for item in year_brand_array:
+        year = item[0]
+        brand = item[1]
+        surname = item[2]
+        if year in year_rel_dict:
+            year_rel_dict[year].append((surname, brand))
+        else:
+            year_rel_dict[year] = [(surname, brand)]
+
+    for year, owners in year_rel_dict.items():
+        owners_str = ' '.join([f'{owner[1]} {owner[0]}' for owner in sorted(owners)])
+        print(f'{year} : {owners_str}')
+
+    file.close()
+    reports(f_check)
+    
 def database_view(f_check):
 
     "Функция database_view выводит всю базу данных из файла на экран"
