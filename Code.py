@@ -82,7 +82,7 @@ def reports(f_check):
         elif choise_n == 2:
             report_2(f_check)
         elif choise_n == 3:
-          report_3(f_check)
+            report_3(f_check)
         elif choise_n == 4:
             main_menu(f_check)
         else:
@@ -122,9 +122,10 @@ def database(f_check):
             main_menu(f_check)
         else:
             print('Вы ошиблись при вводе, попробуйте ещё раз')
-            database()
+            database(f_check)
 
 def report_1(f_check):
+
     """
     Функция report_1 формирует отчет о списках автомобилистов на основе определенных ключей и сортировки.
     Результаты выводятся на экран.
@@ -150,18 +151,21 @@ def report_1(f_check):
                 line_data = line.split()
                 if str(year) == line_data[7]:
                     surname_array.append(line_data[0])
-
-            surname_array = sorted(surname_array, reverse=True)
+            
+            n = len(surname_array)
+            for i in range(n):
+                for j in range(0, n-i-1):
+                    if surname_array[j] > surname_array[j+1]:
+                        surname_array[j], surname_array[j+1] = surname_array[j+1], surname_array[j]
+            
             surname_str = ' '.join(surname_array)
             year_reg_dict[int(year)] = surname_str
             surname_array = []
 
-        # Сортировка пузырьком
         n = len(year_reg_array)
         for i in range(n):
             for j in range(0, n-i-1):
                 if year_reg_array[j] < year_reg_array[j+1]:
-                    # меняем элементы
                     year_reg_array[j], year_reg_array[j+1] = year_reg_array[j+1], year_reg_array[j]
 
         for year in year_reg_array:
@@ -186,7 +190,7 @@ def report_2(f_check):
     surname_array = []
 
     try:
-        n_brand = str(input('Введите название марки: '))
+        n_brand = str(input('Введите название марки, учитывая регистр букв: '))
     except ValueError:
         print('Вы ввели некорректные данные, попробуйте ещё раз')
         return
@@ -223,39 +227,41 @@ def report_3(f_check):
     """    
     year_rel_dict = {}
     year_brand_array = []
-    surname_array = []
     
     try:
         year_rel = int(input('Введите год, раньше которого вы хотите узнать: '))
         if year_rel < 1884:
             print('Слишком давно, попробуйте снова')
-        else:
-            break
+            reports(f_check)
     except ValueError:
         print('Вы ввели некорректные данные, попробуйте ещё раз')
+    else:
+        with open('data.txt', 'r', encoding="utf-8") as file:
+            for line in file:
+                data = line.split()
+                if int(data[6]) < year_rel:
+                    year_brand_array.append((int(data[6]), data[4], data[0]))
 
-    with open('data.txt', 'r', encoding="utf-8") as file:
-        for line in file:
-            data = line.split()
-            if int(data[6]) < year_rel:
-                year_brand_array.append((int(data[6]), data[4], data[0]))
+        n = len(year_brand_array)
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if (year_brand_array[j][0], year_brand_array[j][1]) < (year_brand_array[j+1][0], year_brand_array[j+1][1]):
+                    year_brand_array[j], year_brand_array[j+1] = year_brand_array[j+1], year_brand_array[j]
 
-    year_brand_array.sort(key=lambda x: (-x[0], x[1]))
+        for item in year_brand_array:
+            year = item[0]
+            brand = item[1]
+            surname = item[2]
+            if year in year_rel_dict:
+                year_rel_dict[year].append((surname, brand))
+            else:
+                year_rel_dict[year] = [(surname, brand)]
 
-    for item in year_brand_array:
-        year = item[0]
-        brand = item[1]
-        surname = item[2]
-        if year in year_rel_dict:
-            year_rel_dict[year].append((surname, brand))
-        else:
-            year_rel_dict[year] = [(surname, brand)]
+        for year, owners in year_rel_dict.items():
+            owners_str = ' '.join([f'{owner[1]} {owner[0]}' for owner in (owners)])
+            print(f'{year} : {owners_str}')
 
-    for year, owners in year_rel_dict.items():
-        owners_str = ' '.join([f'{owner[1]} {owner[0]}' for owner in sorted(owners)])
-        print(f'{year} : {owners_str}')
-
-    file.close()
+        file.close()
     reports(f_check)
     
 def database_view(f_check):
@@ -336,7 +342,7 @@ def del_str_database(f_check):
     try:
         choise_n = int(input('Введите число для выбора: '))
     except ValueError:
-        print('Вы ввели некоректные данные, попробуйте ещё раз')
+        print('Вы ввели некорректные данные, попробуйте ещё раз')
         del_str_database(f_check)
     else:
         if choise_n == 0:
@@ -350,14 +356,14 @@ def del_str_database(f_check):
                     del_str_database(f_check)
                 else:
                     files = file.readlines()
-                    if len(files) == 25:
+                    if len(files) <= 25:
                         print('Удаление записи приведёт к наличию менее 25 строк в БД, поэтому это невозможно')
                         database(0)
-                    elif change_str < 1  and change_str >(len(files)+2):
+                    elif change_str < 1  or change_str >(len(files)+2):
                         print('Такой строки нет в БД')
                         database(0)
                     else:
-                        del_el = files.pop(change_str-1)
+                        files.pop(change_str-1)
                         print('Удаление произведено успешно')
             file.close()
             
@@ -384,7 +390,7 @@ def change_str_database(f_check):
     try:
         choise_n = int(input('Введите цифру для выбора: '))
     except ValueError:
-        print('Вы ввели некоректные данные, попробуйте ещё раз')
+        print('Вы ввели некорректные данные, попробуйте ещё раз')
         change_str_database(f_check)
     else:
         if choise_n == 0:
@@ -398,7 +404,7 @@ def change_str_database(f_check):
                     print('Вы ввели некорректные данные, попробуйте ещё раз')
                     change_str_database(f_check)
                 else:
-                    if change_str_n < 1 and change_str_n >(len(files)+2):
+                    if change_str_n < 1 or change_str_n >(len(files)+2):
                         print('Такой строки нет в БД')
                         database(0)
                     else:
@@ -436,10 +442,10 @@ def change_str_database(f_check):
 
                             else:
                                 check(change_str, 3)
-                                if
+                                print(files[change_str_n-1])
                                 files[change_str_n-1] = change_str + '\n'
+                                print(files[change_str_n-1])
                                 print('Изменение произведено успешно')
-                                change_str_database(f_check)
                             
                         else:
                             print('Вы ввели некорректные данные, попробуйте ещё раз')
@@ -451,6 +457,7 @@ def change_str_database(f_check):
                 for i in range(0,len(files)):
                     file_sec.write(files[i])
                 file_sec.close()
+            database(0)
         
         else:
             print('Вы ввели некорректные данные, попробуйте снова')
@@ -494,7 +501,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('В фамилии есть символы, которые не являются буквами, попробуйте ещё раз')
-                    change_str_database()
+                    change_str_database(f_check)
 
             if n_name.isalpha() == False:
                 if f_check == 1:
@@ -504,7 +511,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('В имени есть символы, которые не являются буквами, попробуйте ещё раз')
-                    change_str_database()
+                    change_str_database(f_check)
 
             if n_patronym.isalpha() == False:
                 if f_check == 1:
@@ -514,7 +521,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('В отчестве есть символы, которые не являются буквами, попробуйте ещё раз')
-                    change_str_database()
+                    change_str_database(f_check)
 
             if not((n_reg[0] in letters) and (n_reg[1] in numbers) and (n_reg[2] in numbers) and (n_reg[3] in numbers) and (n_reg[4] in letters) and (n_reg[5] in letters)):
                 if f_check == 1:
@@ -524,7 +531,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('Введённая строка не соответствует форме, попробуйте ещё раз')
-                    change_str_database()
+                    change_str_database(f_check)
 
             if year_rel_n < 1884 and year_rel_n > 2024:
                 if  f_check == 1:
@@ -534,7 +541,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('Число вне допустимого диапазона')
-                    change_str_database()
+                    change_str_database(f_check)
 
             elif year_rel_n < 1993 and year_rel_n > 2024:
                 if  f_check == 1:
@@ -544,7 +551,7 @@ def check(data_str, f_check):
                     add_str_database(0)
                 elif f_check == 3:
                     print('Число вне допустимого диапазона')
-                    change_str_database()            
+                    change_str_database(f_check)            
 
     else:
         if f_check == 1:
