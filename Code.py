@@ -359,7 +359,7 @@ def del_str_database(f_check):
                     if len(files) <= 25:
                         print('Удаление записи приведёт к наличию менее 25 строк в БД, поэтому это невозможно')
                         database(0)
-                    elif change_str < 1  or change_str >(len(files)+2):
+                    elif change_str < 1  or change_str >(len(files)):
                         print('Такой строки нет в БД')
                         database(0)
                     else:
@@ -404,7 +404,7 @@ def change_str_database(f_check):
                     print('Вы ввели некорректные данные, попробуйте ещё раз')
                     change_str_database(f_check)
                 else:
-                    if change_str_n < 1 or change_str_n >(len(files)+2):
+                    if change_str_n < 1 or change_str_n >(len(files)):
                         print('Такой строки нет в БД')
                         database(0)
                     else:
